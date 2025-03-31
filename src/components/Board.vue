@@ -32,9 +32,5 @@ export default defineComponent({
 .board {
   display: flex;
   gap: 1rem;
-  padding: 1rem;
-  background: #f1f1f1;
-  min-height: 100%;
-  overflow-x: auto;
 }
 </style>

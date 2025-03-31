@@ -15,6 +15,7 @@
   #app {
     padding: 2rem;
     font-family: Avenir, Helvetica, Arial, sans-serif;
+    height: 100vh;
   }
   </style>
   
