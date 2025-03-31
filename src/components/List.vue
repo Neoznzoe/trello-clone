@@ -1,7 +1,7 @@
 <template>
   <div class="list">
     <h2 class="list-title">{{ list.name }}</h2>
-    <!-- Utilisation de draggable pour gérer le drag and drop -->
+    <!-- Utilisation de draggable pour gérer le drag & drop -->
     <draggable v-model="localCards" group="cards" @end="onDragEnd">
       <template #item="{ element }">
         <Card :card="element" />
@@ -14,12 +14,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, watch } from 'vue';
+import draggable from 'vuedraggable';
 import Card from './Card.vue';
-import type { ListData, Card as CardInterface } from './Board.vue';
+import type { ListData, Card as CardInterface } from '../store/boardStore';
 
 export default defineComponent({
   name: 'List',
-  components: { Card },
+  components: { Card, draggable },
   props: {
     list: {
       type: Object as PropType<ListData>,
@@ -28,26 +29,26 @@ export default defineComponent({
   },
   emits: ['updateList'],
   setup(props, { emit }) {
-    // Copie locale des cartes pour faciliter les interactions (ex. drag & drop)
     const localCards = ref<CardInterface[]>([...props.list.cards]);
 
-    // Surveiller les changements et notifier le composant parent
     watch(localCards, (newCards) => {
       emit('updateList', { ...props.list, cards: newCards });
     });
 
-    // Fonction pour ajouter une nouvelle carte à la liste
+    // Modification de la fonction d'ajout de carte pour demander un nom
     const addCard = () => {
-      const newCard: CardInterface = {
-        id: Date.now(), // Utilisation du timestamp comme identifiant unique
-        text: 'Nouvelle carte'
-      };
-      localCards.value.push(newCard);
+      const cardName = window.prompt('Veuillez saisir le nom de la nouvelle tâche :');
+      if (cardName && cardName.trim() !== '') {
+        const newCard: CardInterface = {
+          id: Date.now(), // Utilisation d'un timestamp pour un ID unique
+          text: cardName.trim()
+        };
+        localCards.value.push(newCard);
+      }
     };
 
-    // Fonction déclenchée après un drag & drop
     const onDragEnd = () => {
-      // Vous pouvez ajouter ici des actions supplémentaires (ex. sauvegarde de l'ordre)
+      // Actions supplémentaires après un drag & drop (si besoin)
     };
 
     return { localCards, addCard, onDragEnd };

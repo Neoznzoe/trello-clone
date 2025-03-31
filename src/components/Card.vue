@@ -6,13 +6,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
-import type { Card as CardInterface } from './Board.vue';
+import type { Card } from '../store/boardStore'; // Import du type depuis le store
 
 export default defineComponent({
   name: 'Card',
   props: {
     card: {
-      type: Object as PropType<CardInterface>,
+      type: Object as PropType<Card>,
       required: true
     }
   }

@@ -2,11 +2,13 @@
 <template>
     <div id="app">
       <h1>Hello Trello Clone 🚀</h1>
+      <!-- On affiche le Board juste en dessous du titre -->
+      <Board />
     </div>
   </template>
   
   <script setup lang="ts">
-  // ici tu pourras importer tes composants plus tard
+  import Board from './components/Board.vue';
   </script>
   
   <style scoped>
