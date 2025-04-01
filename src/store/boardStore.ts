@@ -3,6 +3,8 @@ import { defineStore } from 'pinia';
 export interface Card {
   id: number;
   text: string;
+  priority?: string;
+  checked?: boolean;
 }
 
 export interface ListData {

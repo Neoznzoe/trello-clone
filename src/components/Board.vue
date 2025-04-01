@@ -12,14 +12,13 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import List from './List.vue';
-import { useBoardStore } from '../store/boardStore'; // Chemin vers votre store
+import { useBoardStore } from '../store/boardStore';
 
 export default defineComponent({
   name: 'Board',
   components: { List },
   setup() {
     const boardStore = useBoardStore();
-    // Les données et actions proviennent directement du store
     return {
       lists: boardStore.lists,
       updateList: boardStore.updateList
@@ -32,5 +31,8 @@ export default defineComponent({
 .board {
   display: flex;
   gap: 1rem;
+  padding: 1rem 0;
+  overflow-x: auto;
+  min-height: 70vh;
 }
 </style>

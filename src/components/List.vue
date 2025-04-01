@@ -2,20 +2,23 @@
   <div class="list">
     <h2 class="list-title">{{ list.name }}</h2>
 
+    <!-- Affichage des cartes avec drag & drop -->
     <draggable v-model="localCards" group="cards" @end="onDragEnd">
       <template #item="{ element }">
         <Card
           :card="element"
-          @deleteCard="handleDeleteCard"
           @updateCard="handleUpdateCard"
+          @deleteCard="handleDeleteCard"
         />
       </template>
     </draggable>
 
+    <!-- Bouton d'ajout de carte inline -->
     <div v-if="!showNewCardForm" class="add-card-placeholder" @click="showNewCardForm = true">
       <img :src="plusIcon" alt="Add" class="add-icon" /> Ajouter une carte
     </div>
 
+    <!-- Formulaire d'ajout -->
     <div v-else class="new-card-form">
       <textarea
         v-model="newCardText"
@@ -48,23 +51,24 @@ export default defineComponent({
   },
   emits: ['updateList'],
   setup(props, { emit }) {
-    // Copie locale des cartes pour le drag & drop
+    // Utilisation d'une copie locale pour gérer le drag & drop
     const localCards = ref<CardInterface[]>([...props.list.cards]);
     watch(localCards, (newCards) => {
       emit('updateList', { ...props.list, cards: newCards });
     });
 
-    // Gestion de l'ajout de carte
+    // Gestion du formulaire d'ajout de carte
     const showNewCardForm = ref(false);
     const newCardText = ref('');
 
-    // Fonction déclenchée lorsque l'utilisateur clique sur "Ajouter" dans le formulaire
     const addCard = () => {
       const text = newCardText.value.trim();
       if (text) {
         const newCard: CardInterface = {
           id: Date.now(),
-          text
+          text,
+          priority: 'Basse',  // priorité par défaut
+          checked: false      // case décochée par défaut
         };
         localCards.value.push(newCard);
       }
@@ -72,19 +76,13 @@ export default defineComponent({
       showNewCardForm.value = false;
     };
 
-    // Fonction déclenchée lorsque l'utilisateur clique sur "Annuler"
     const cancelAddCard = () => {
       newCardText.value = '';
       showNewCardForm.value = false;
     };
 
-    // Fonction déclenchée après un drag & drop
     const onDragEnd = () => {
       // Actions supplémentaires si nécessaire
-    };
-
-    const handleDeleteCard = (id: number) => {
-      localCards.value = localCards.value.filter(card => card.id !== id);
     };
 
     const handleUpdateCard = (updatedCard: CardInterface) => {
@@ -94,6 +92,10 @@ export default defineComponent({
       }
     };
 
+    const handleDeleteCard = (cardId: number) => {
+      localCards.value = localCards.value.filter(card => card.id !== cardId);
+    };
+
     return {
       localCards,
       showNewCardForm,
@@ -101,8 +103,8 @@ export default defineComponent({
       addCard,
       cancelAddCard,
       onDragEnd,
-      handleDeleteCard,
       handleUpdateCard,
+      handleDeleteCard,
       plusIcon
     };
   }
@@ -111,32 +113,30 @@ export default defineComponent({
 
 <style scoped>
 .list {
+  width: 272px; /* Largeur fixe pour chaque liste */
+  flex-shrink: 0;
   background: #fff;
   padding: 1rem;
   border-radius: 5px;
-  width: 250px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  position: relative;
 }
-
 .list-title {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
 
-/* Bouton + "Ajouter une carte" */
+/* Bouton "Ajouter une carte" */
 .add-card-placeholder {
+  margin-top: 1rem;
+  color: #666;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 0.5rem;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
-  color: #666;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.3s;
-  border-radius: 5px;
 }
-
 .add-card-placeholder:hover {
   background-color: #f5f5f5;
 }
@@ -145,12 +145,12 @@ export default defineComponent({
   height: 1rem;
 }
 
+/* Formulaire d'ajout */
 .new-card-form {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
 }
-
 .new-card-textarea {
   width: auto;
   padding: 0.5rem;
@@ -158,16 +158,14 @@ export default defineComponent({
   border-radius: 5px;
   border: 1px solid #ccc;
   outline: none;
-  font-size: 10px;
-  font-family: system-ui;
+  font-size: 0.8rem;
+  font-family: unset;
 }
-
 .new-card-actions {
   margin-top: 0.5rem;
   display: flex;
   gap: 0.5rem;
 }
-
 .confirm-btn {
   background: #007bff;
   color: #fff;
@@ -179,7 +177,6 @@ export default defineComponent({
 .confirm-btn:hover {
   background: #0056b3;
 }
-
 .cancel-btn {
   background: #999;
   color: #fff;
