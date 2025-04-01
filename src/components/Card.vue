@@ -168,7 +168,6 @@ export default defineComponent({
   margin-left: 0.5rem;
 }
 
-/* Texte de la carte */
 .card-text {
   white-space: pre-wrap;
   overflow: hidden;
@@ -176,7 +175,6 @@ export default defineComponent({
   word-break: break-word;
 }
 
-/* Textarea pour l'édition du texte */
 .edit-textarea {
   width: 100%;
   resize: none;
@@ -186,7 +184,6 @@ export default defineComponent({
   font-family: inherit;
 }
 
-/* Bouton de suppression */
 .delete-btn {
   background: transparent;
   border: none;
