@@ -13,9 +13,13 @@
   
   <style scoped>
   #app {
-    padding: 2rem;
     font-family: Avenir, Helvetica, Arial, sans-serif;
     height: 100vh;
+  }
+
+  h1 {
+    padding: 2rem;
+    margin: 0;
   }
   </style>
   
