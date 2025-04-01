@@ -2,32 +2,34 @@
   <div class="list">
     <h2 class="list-title">{{ list.name }}</h2>
 
-    <!-- Affichage des cartes avec drag & drop -->
-    <draggable v-model="localCards" group="cards" @end="onDragEnd">
-      <template #item="{ element }">
-        <Card
-          :card="element"
-          @updateCard="handleUpdateCard"
-          @deleteCard="handleDeleteCard"
-        />
-      </template>
-    </draggable>
-
-    <!-- Bouton d'ajout de carte inline -->
-    <div v-if="!showNewCardForm" class="add-card-placeholder" @click="showNewCardForm = true">
-      <img :src="plusIcon" alt="Add" class="add-icon" /> Ajouter une carte
+    <!-- Conteneur défilant pour les cartes -->
+    <div class="cards-container">
+      <draggable v-model="localCards" group="cards" @end="onDragEnd">
+        <template #item="{ element }">
+          <Card
+            :card="element"
+            @updateCard="handleUpdateCard"
+            @deleteCard="handleDeleteCard"
+          />
+        </template>
+      </draggable>
     </div>
 
-    <!-- Formulaire d'ajout -->
-    <div v-else class="new-card-form">
-      <textarea
-        v-model="newCardText"
-        placeholder="Saisissez le titre de la carte..."
-        class="new-card-textarea"
-      ></textarea>
-      <div class="new-card-actions">
-        <button class="confirm-btn" @click="addCard">Ajouter</button>
-        <button class="cancel-btn" @click="cancelAddCard">Annuler</button>
+    <!-- Section "Ajouter une carte" toujours visible -->
+    <div class="add-card-section">
+      <div v-if="!showNewCardForm" class="add-card-placeholder" @click="showNewCardForm = true">
+        <img :src="plusIcon" alt="Add" class="add-icon" /> Ajouter une carte
+      </div>
+      <div v-else class="new-card-form">
+        <textarea
+          v-model="newCardText"
+          placeholder="Saisissez le titre de la carte..."
+          class="new-card-textarea"
+        ></textarea>
+        <div class="new-card-actions">
+          <button class="confirm-btn" @click="addCard">Ajouter</button>
+          <button class="cancel-btn" @click="cancelAddCard">Annuler</button>
+        </div>
       </div>
     </div>
   </div>
@@ -51,7 +53,7 @@ export default defineComponent({
   },
   emits: ['updateList'],
   setup(props, { emit }) {
-    // Utilisation d'une copie locale pour gérer le drag & drop
+    // Copie locale pour gérer le drag & drop
     const localCards = ref<CardInterface[]>([...props.list.cards]);
     watch(localCards, (newCards) => {
       emit('updateList', { ...props.list, cards: newCards });
@@ -119,10 +121,30 @@ export default defineComponent({
   padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  /* Fixer une hauteur maximale pour activer le scroll interne */
+  max-height: 100%;
 }
+
+/* Titre de la liste */
 .list-title {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
+}
+
+/* Conteneur défilant pour les cartes */
+.cards-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.5rem;
+}
+
+/* Section "Ajouter une carte" toujours visible en bas */
+.add-card-section {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
 }
 
 /* Bouton "Ajouter une carte" */
@@ -152,14 +174,13 @@ export default defineComponent({
   flex-direction: column;
 }
 .new-card-textarea {
-  width: auto;
   padding: 0.5rem;
   resize: none;
   border-radius: 5px;
   border: 1px solid #ccc;
   outline: none;
   font-size: 0.8rem;
-  font-family: unset;
+  font-family: sans-serif;
 }
 .new-card-actions {
   margin-top: 0.5rem;

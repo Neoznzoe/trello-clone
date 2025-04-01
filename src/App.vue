@@ -2,7 +2,6 @@
 <template>
     <div id="app">
       <h1>Hello Trello Clone 🚀</h1>
-      <!-- On affiche le Board juste en dessous du titre -->
       <Board />
     </div>
   </template>
