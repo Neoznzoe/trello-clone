@@ -155,7 +155,7 @@ export default defineComponent({
   width: auto;
   padding: 0.5rem;
   resize: none;
-  border-radius: 3px;
+  border-radius: 5px;
   border: 1px solid #ccc;
   outline: none;
   font-size: 10px;

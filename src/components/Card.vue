@@ -1,17 +1,16 @@
-<!-- src/components/Card.vue -->
 <template>
   <div class="card" @dblclick="enableEditing">
     <template v-if="editing">
-      <input
-        type="text"
+      <!-- On remplace l'input par un textarea -->
+      <textarea
         v-model="editedText"
         @blur="save"
         @keyup.enter="save"
-        class="card-input"
-      />
+        class="card-textarea"
+      ></textarea>
     </template>
     <template v-else>
-      <span>{{ card.text }}</span>
+      <span class="card-text">{{ card.text }}</span>
       <button class="delete-btn" @click.stop="deleteCard">
         <img :src="trashIcon" alt="Delete" class="trash-icon" />
       </button>
@@ -42,6 +41,7 @@ export default defineComponent({
       editedText.value = props.card.text;
     };
 
+    // On valide l'édition au blur ou sur la touche Entrée
     const save = () => {
       editing.value = false;
       const newText = editedText.value.trim();
@@ -69,15 +69,17 @@ export default defineComponent({
   cursor: pointer;
   position: relative;
   display: flex;
+  flex-direction: row;
+  align-items: flex-start; /* Important pour que le texte puisse grandir vers le bas */
   justify-content: space-between;
-  align-items: center;
+  max-width: 100%; 
 }
 
-.card-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  padding: 0.5rem;
+.card-text {
+  /* Pour que le texte occupe la place disponible et se renvoie à la ligne */
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: calc(100% - 2rem); /* Laisser de la place au bouton si besoin */
 }
 
 .delete-btn {
@@ -86,10 +88,13 @@ export default defineComponent({
   color: #e74c3c;
   cursor: pointer;
   font-size: 1rem;
+  margin-left: 0.5rem;
 }
 
 .trash-icon {
   width: 1rem;
-  height: 1rem;
+  height: 1rem;  
+  filter: invert(22%) sepia(96%) saturate(748%) hue-rotate(340deg) brightness(91%) contrast(92%);
 }
+
 </style>
