@@ -17,7 +17,7 @@
   }
 
   h1 {
-    padding: 2rem;
+    padding: 2rem 2rem 1rem 2rem;
     margin: 0;
   }
   </style>

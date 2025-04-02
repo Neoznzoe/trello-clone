@@ -2,34 +2,41 @@
   <div class="list">
     <h2 class="list-title">{{ list.name }}</h2>
 
-    <!-- Conteneur défilant pour les cartes -->
-    <div class="cards-container">
-      <draggable v-model="localCards" group="cards" @end="onDragEnd">
-        <template #item="{ element }">
-          <Card
-            :card="element"
-            @updateCard="handleUpdateCard"
-            @deleteCard="handleDeleteCard"
-          />
-        </template>
-      </draggable>
+    <!-- Affichage des cartes avec drag & drop -->
+    <draggable v-model="localCards" group="cards" @end="onDragEnd">
+      <template #item="{ element }">
+        <Card
+          :card="element"
+          @updateCard="handleUpdateCard"
+          @deleteCard="handleDeleteCard"
+        />
+      </template>
+    </draggable>
+
+    <!-- Bouton d'ajout de carte inline -->
+    <div v-if="!showNewCardForm" class="add-card-placeholder" @click="showNewCardForm = true">
+      <img :src="plusIcon" alt="Add" class="add-icon" /> Ajouter une carte
     </div>
 
-    <!-- Section "Ajouter une carte" toujours visible -->
-    <div class="add-card-section">
-      <div v-if="!showNewCardForm" class="add-card-placeholder" @click="showNewCardForm = true">
-        <img :src="plusIcon" alt="Add" class="add-icon" /> Ajouter une carte
-      </div>
-      <div v-else class="new-card-form">
-        <textarea
-          v-model="newCardText"
-          placeholder="Saisissez le titre de la carte..."
-          class="new-card-textarea"
-        ></textarea>
-        <div class="new-card-actions">
-          <button class="confirm-btn" @click="addCard">Ajouter</button>
-          <button class="cancel-btn" @click="cancelAddCard">Annuler</button>
-        </div>
+    <!-- Formulaire d'ajout -->
+    <div v-else class="new-card-form">
+      <textarea
+        v-model="newCardText"
+        placeholder="Saisissez le titre de la carte..."
+        class="new-card-textarea">
+      </textarea>
+
+      <!-- Champ pour choisir la priorité -->
+      <select v-model="newCardPriority" class="new-card-priority">
+        <option disabled value="">Choisissez une priorité</option>
+        <option value="faible">Faible</option>
+        <option value="moyenne">Moyenne</option>
+        <option value="eleve">Élevée</option>
+      </select>
+
+      <div class="new-card-actions">
+        <button class="confirm-btn" @click="addCard">Ajouter</button>
+        <button class="cancel-btn" @click="cancelAddCard">Annuler</button>
       </div>
     </div>
   </div>
@@ -53,7 +60,7 @@ export default defineComponent({
   },
   emits: ['updateList'],
   setup(props, { emit }) {
-    // Copie locale pour gérer le drag & drop
+    // Utilisation d'une copie locale pour gérer le drag & drop
     const localCards = ref<CardInterface[]>([...props.list.cards]);
     watch(localCards, (newCards) => {
       emit('updateList', { ...props.list, cards: newCards });
@@ -62,24 +69,28 @@ export default defineComponent({
     // Gestion du formulaire d'ajout de carte
     const showNewCardForm = ref(false);
     const newCardText = ref('');
+    // Nouvelle variable pour la priorité
+    const newCardPriority = ref('');
 
     const addCard = () => {
       const text = newCardText.value.trim();
-      if (text) {
+      if (text && newCardPriority.value) {  // On s'assure qu'une priorité est choisie
         const newCard: CardInterface = {
           id: Date.now(),
           text,
-          priority: 'Basse',  // priorité par défaut
+          priority: newCardPriority.value,  // priorité choisie
           checked: false      // case décochée par défaut
         };
         localCards.value.push(newCard);
       }
       newCardText.value = '';
+      newCardPriority.value = '';
       showNewCardForm.value = false;
     };
 
     const cancelAddCard = () => {
       newCardText.value = '';
+      newCardPriority.value = '';
       showNewCardForm.value = false;
     };
 
@@ -102,6 +113,7 @@ export default defineComponent({
       localCards,
       showNewCardForm,
       newCardText,
+      newCardPriority,
       addCard,
       cancelAddCard,
       onDragEnd,
@@ -121,30 +133,11 @@ export default defineComponent({
   padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  /* Fixer une hauteur maximale pour activer le scroll interne */
-  max-height: 100%;
 }
-
-/* Titre de la liste */
 .list-title {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
-}
-
-/* Conteneur défilant pour les cartes */
-.cards-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem 0.5rem;
-}
-
-/* Section "Ajouter une carte" toujours visible en bas */
-.add-card-section {
-  position: sticky;
-  bottom: 0;
-  background: #fff;
+  margin-top: 0;
 }
 
 /* Bouton "Ajouter une carte" */
@@ -174,13 +167,22 @@ export default defineComponent({
   flex-direction: column;
 }
 .new-card-textarea {
+  width: auto;
   padding: 0.5rem;
   resize: none;
   border-radius: 5px;
   border: 1px solid #ccc;
   outline: none;
   font-size: 0.8rem;
-  font-family: sans-serif;
+  font-family: unset;
+}
+.new-card-priority {
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  background: #fff;
 }
 .new-card-actions {
   margin-top: 0.5rem;

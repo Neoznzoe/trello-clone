@@ -32,6 +32,10 @@
         <div class="card-text">
           {{ card.text }}
         </div>
+        <!-- Label de priorité -->
+        <div v-if="card.priority" class="priority-label" :class="priorityClass">
+          {{ capitalizedPriority }}
+        </div>
       </template>
     </div>
 
@@ -60,16 +64,13 @@ export default defineComponent({
     const editing = ref(false);
     const editedText = ref(props.card.text);
 
-    // Timer pour différencier clic simple / double-clic
     let clickTimer: ReturnType<typeof setTimeout> | null = null;
 
     const handleClick = () => {
-      // Si un clic est déjà en attente, on le nettoie
       if (clickTimer) {
         clearTimeout(clickTimer);
         clickTimer = null;
       } else {
-        // Délai pour différencier du double-clic (ici 250 ms)
         clickTimer = setTimeout(() => {
           if (!editing.value) {
             toggleChecked();
@@ -80,7 +81,6 @@ export default defineComponent({
     };
 
     const handleDblClick = () => {
-      // Annule le clic simple
       if (clickTimer) {
         clearTimeout(clickTimer);
         clickTimer = null;
@@ -95,7 +95,6 @@ export default defineComponent({
 
     const enableEditing = () => {
       editing.value = true;
-      // Vous pouvez ajouter une logique pour donner le focus au textarea ici
     };
 
     const saveEdit = () => {
@@ -113,6 +112,27 @@ export default defineComponent({
     // La checkbox est visible si on survole la carte ou si la carte est cochée
     const checkboxVisible = computed(() => hovered.value || isChecked.value);
 
+    // Détermine la classe CSS en fonction de la priorité (couleur associée)
+    const priorityClass = computed(() => {
+      const p = (props.card.priority || '').toLowerCase();
+      if (p === 'faible' || p === 'basse') {
+        return 'priority-faible';
+      } else if (p === 'moyenne') {
+        return 'priority-moyenne';
+      } else if (p === 'eleve' || p === 'élevé' || p === 'élevée') {
+        return 'priority-eleve';
+      }
+      return '';
+    });
+
+    // Capitalise la première lettre de la priorité
+    const capitalizedPriority = computed(() => {
+      if (!props.card.priority) return '';
+      // on normalise la priorité en minuscules, puis on met la 1ère lettre en majuscule
+      const p = props.card.priority.toLowerCase();
+      return p.charAt(0).toUpperCase() + p.slice(1);
+    });
+
     return {
       hovered,
       isChecked,
@@ -124,7 +144,9 @@ export default defineComponent({
       enableEditing,
       saveEdit,
       deleteCard,
-      checkboxVisible
+      checkboxVisible,
+      priorityClass,
+      capitalizedPriority
     };
   }
 });
@@ -139,12 +161,12 @@ export default defineComponent({
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   display: flex;
-  align-items: center; /* Tous les éléments sur une même ligne */
+  align-items: center;
   position: relative;
   cursor: pointer;
 }
 
-/* Conteneur de la checkbox */
+/* Checkbox */
 .checkbox-container {
   width: 0;
   overflow: hidden;
@@ -159,13 +181,35 @@ export default defineComponent({
   height: 1rem;
 }
 
-/* Contenu principal de la carte */
 .card-content {
   flex: 1;
   transition: margin-left 0.3s ease;
 }
 .card-content.with-checkbox {
   margin-left: 0.5rem;
+}
+
+/* Label de priorité */
+.priority-label {
+  display: inline-block;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Couleurs sobres associées aux priorités */
+.priority-faible {
+  background-color: #d4edda; /* vert pâle */
+  color: #155724;
+}
+.priority-moyenne {
+  background-color: #fff3cd; /* jaune pâle */
+  color: #856404;
+}
+.priority-eleve {
+  background-color: #f8d7da; /* rouge pâle */
+  color: #721c24;
 }
 
 .card-text {
