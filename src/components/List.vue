@@ -3,13 +3,33 @@
     <h2 class="list-title">{{ list.name }}</h2>
 
     <!-- Affichage des cartes avec drag & drop -->
-    <draggable v-model="localCards" group="cards" @end="onDragEnd">
+    <draggable
+      v-model="localCards"
+      group="cards"
+      @end="onDragEnd"
+      ghost-class="drag-ghost"
+      chosen-class="drag-chosen"
+      animation="200"
+    >
+      <!-- Affichage des cartes -->
       <template #item="{ element }">
         <Card
           :card="element"
           @updateCard="handleUpdateCard"
           @deleteCard="handleDeleteCard"
         />
+      </template>
+
+      <!-- Placeholder affiché dans la liste lors du déplacement -->
+      <template #placeholder>
+        <div class="placeholder-card"></div>
+      </template>
+
+      <!-- Optionnel : clone personnalisé lors du drag -->
+      <template #clone="{ element }">
+        <div class="my-drag-clone">
+          {{ element.text }}
+        </div>
       </template>
     </draggable>
 
@@ -60,7 +80,7 @@ export default defineComponent({
   },
   emits: ['updateList'],
   setup(props, { emit }) {
-    // Utilisation d'une copie locale pour gérer le drag & drop
+    // Copie locale des cartes pour gérer le drag & drop
     const localCards = ref<CardInterface[]>([...props.list.cards]);
     watch(localCards, (newCards) => {
       emit('updateList', { ...props.list, cards: newCards });
@@ -69,17 +89,16 @@ export default defineComponent({
     // Gestion du formulaire d'ajout de carte
     const showNewCardForm = ref(false);
     const newCardText = ref('');
-    // Nouvelle variable pour la priorité
     const newCardPriority = ref('');
 
     const addCard = () => {
       const text = newCardText.value.trim();
-      if (text && newCardPriority.value) {  // On s'assure qu'une priorité est choisie
+      if (text && newCardPriority.value) {
         const newCard: CardInterface = {
           id: Date.now(),
           text,
-          priority: newCardPriority.value,  // priorité choisie
-          checked: false      // case décochée par défaut
+          priority: newCardPriority.value,
+          checked: false
         };
         localCards.value.push(newCard);
       }
@@ -95,7 +114,7 @@ export default defineComponent({
     };
 
     const onDragEnd = () => {
-      // Actions supplémentaires si nécessaire
+      // Actions supplémentaires une fois le drag terminé (si nécessaire)
     };
 
     const handleUpdateCard = (updatedCard: CardInterface) => {
@@ -127,7 +146,7 @@ export default defineComponent({
 
 <style scoped>
 .list {
-  width: 272px; /* Largeur fixe pour chaque liste */
+  width: 272px;
   flex-shrink: 0;
   background: #fff;
   padding: 1rem;
@@ -138,6 +157,41 @@ export default defineComponent({
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
   margin-top: 0;
+}
+
+/* Effets de drag & drop */
+
+/* Classe appliquée à l'élément choisi (celui resté dans la liste) */
+.drag-chosen {
+  transform: rotate(3deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Classe appliquée au ghost (élément qui suit la souris) */
+.drag-ghost {
+  transform: rotate(5deg);
+  opacity: 0.9;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  cursor: grabbing;
+}
+
+/* Style du placeholder (emplacement skeleton) */
+.placeholder-card {
+  min-height: 60px;
+  margin: 0.5rem 0;
+  background-color: #f8f8f8;
+  border: 2px dashed #ccc;
+  border-radius: 3px;
+}
+
+/* Style optionnel du clone lors du drag */
+.my-drag-clone {
+  transform: rotate(5deg);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  opacity: 0.9;
+  background: #fff;
+  padding: 0.5rem;
+  border-radius: 3px;
 }
 
 /* Bouton "Ajouter une carte" */
